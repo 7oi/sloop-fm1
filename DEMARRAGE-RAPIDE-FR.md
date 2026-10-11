@@ -20,7 +20,7 @@ Le guide complet, chaque bouton, combinaison et page, avec un aide-mémoire d'un
 2. Dans **Chrome ou Edge**, branche le FM-1 en USB (câble de données, directement, sans hub).
 3. **INSTALL**, autorise le MIDI, attends *Done*. Garde la fenêtre noire ouverte jusque-là.
 
-L'éditeur web : `http://localhost:8766/webapp/editor/` (ou **`OPEN-EDITOR.bat`**). Hors ligne (2.6) : le lien *Download the editor* (sous Connect, ou sur la page de l'installateur) enregistre l'éditeur en un seul fichier ; double-clique-le, il s'ouvre dans Chrome ou Edge sans internet (Chrome demande une fois d'autoriser le MIDI).
+L'éditeur web : `http://localhost:8766/webapp/editor/` (ou **`OPEN-EDITOR.bat`**). Hors ligne (2.6) : le lien *Download the editor* (sous Connect, ou sur la page de l'installateur) enregistre l'éditeur en un seul fichier ; double-clique-le, il s'ouvre dans Chrome ou Edge sans internet (Chrome demande une fois d'autoriser le MIDI). Sur Android (ou pour l'avoir comme une application) : ouvre une fois l'éditeur en ligne avec internet, puis *Install the app* ; l'app SLOOP marche ensuite sans internet, l'installateur aussi.
 
 ## Un beat en soixante secondes
 
