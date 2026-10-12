@@ -151,13 +151,6 @@ The full list, and what came in 2.0, 2.1 and 2.2: [SLOOP.md](SLOOP.md#new-in-23)
 
 <p align="center"><sub>The piano roll: draw, delete and stretch notes and chords with the mouse; Export MIDI / Import MIDI next to it.</sub></p>
 
-<p align="center"><img src="assets/screens/editor-drums.png" alt="SLOOP web editor: the drum track" width="760"></p>
-
-<p align="center"><sub>The web editor: the drum track as a 16-lane grid, with levels and ratchets.</sub></p>
-
-<p align="center"><img src="assets/screens/editor-chop.png" alt="SLOOP web editor: CHOP" width="760"></p>
-
-<p align="center"><sub>CHOP: a 20 s recording cut into 16 chops, 8 kept, fitted to the slot.</sub></p>
 
 ## Features
 
@@ -504,6 +497,7 @@ See [BUILDING.md](BUILDING.md). In short: the JieLi toolchain and three files of
 - **The Felucca community, who asked for those features first** (Felucca discussions and issues): **Wulgaren** (insert effects with dry / wet, #78; the arp report, #191), **etyrnal** (the lo-fi bit effect, #177; envelopes in note values, #175), **benjaminguerrer** (LFO sync, #154), **gospodindilly-ops** (the ANALOG filter types, #104), **Armstrong1980** (#178) and **oMauNaProducer** (#173) (note length, step velocity), **lostfictions** and **planist79** (MIDI LEARN, #170).
 - **@renebohne** — the played-note key lights (pull request #11) and, in 2.6, MIDI Program Change (Felucca pull request #179).
 - **ChanceTheMaker** and **keremimo** — the TRS MIDI input fix (Felucca Salt) and contributions to the MIDI clock.
+- **@ordenador** (Mario Faúndez Vidal) — the web editor's local audio preview: the firmware's own engines and sequencer in the browser (WebAssembly), with the playable piano / pads and the inline sequence editing (pull request #120).
 - **Everyone who installed SLOOP, made music with it, commented, reported a bug or asked for a feature** — most of each update comes from your messages: parameter locks, DX7 patches, dotted delays and longer steps (2.4); in 2.6 a MIDI channel per track, sustain and pitch bend, step entry from a MIDI keyboard, TEXTURE, the fixed crackles, the web editor bug with the same value on two tracks, and the MIDI learn backup. You asked, tested and reported them.
 - Samples: Versilian Studios VSCO-2 CE and VCSL, Sonic Pi (all CC0). Font: Terminus and Terminus Bold (SIL OFL 1.1). Icons: Fukiai (MIT, Hügelton Instruments). PHASE engine after CrispyZebra (GPL); VOICE after klattsch (MIT); FM6: msfa from Dexed by Google Inc. and Pascal Gauthier (Apache-2.0).
 - Interface ideas after teenage engineering's pocket operators and EP-133, Elektron's step entry and Akai's MPC (swing, note repeat, erase).

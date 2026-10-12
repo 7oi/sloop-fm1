@@ -34,7 +34,7 @@ const E = vm.runInNewContext(proto + `
    CHOP, chopNovelty, chopHits, chopSnap, chopGrid, chopEqual, chopList, chopPick, chopFit, chopZones, wavFile, zipStore, crc32,
    UP, bank, capturePatch, auditionPatch, startWatch, libraryFile, readLibraryFile, paramKeys, patternFromSteps, stepsFromPattern, upName,
    mixer, GM_DRUM, drumName, parseNotes, fmtValue, F, DRUM_LANES, LV_NAMES, emptyDrum, lockable, MICRO, FC, fillGet, fillSet, pack7, unpack7,
-   backupCapture, backupRestore, backupObjects, b64enc, b64dec, FM6, KIT, kitPad, kitZones, kitLen, kitBytes, kitFit, kitSplit, kitLaneOf, kitPlace, zipRead, ROLL, SMF, ARR, mockSettings, fm6CartWrite, fm6CartPreset, fm6CartSlots, fm6CartPresets, DSYN, DSYN_MOCK_NAMES, DSYN_MOCK_KITS, SetGate, bkProjFormat, bkDevFormat, bkFwAtLeast })`,
+   loudDb, matchGains, withGain, LEVEL_MIN, backupCapture, backupRestore, backupObjects, b64enc, b64dec, FM6, KIT, kitPad, kitZones, kitLen, kitBytes, kitFit, kitSplit, kitLaneOf, kitPlace, zipRead, ROLL, SMF, ARR, mockSettings, fm6CartWrite, fm6CartPreset, fm6CartSlots, fm6CartPresets, DSYN, DSYN_MOCK_NAMES, DSYN_MOCK_KITS, SetGate, bkProjFormat, bkDevFormat, bkFwAtLeast })`,
 { setTimeout, clearTimeout, setInterval, clearInterval, console, TextEncoder, TextDecoder, Blob, Response, DecompressionStream });
 
 async function editorMock() {
@@ -844,6 +844,31 @@ await (async () => {
     const one = Array(16).fill(null); one[0] = mk(9);
     ok(!E.kitSplit(one, R) && E.kitFit(one, R, 2) && E.kitSplit(one, R) && E.kitSplit(one, R)[1].length === 0,
       "drum kit: ... a sound longer than a slot is cut to one slot");
+  }
+  {   /* SLOOP 2.6: levels heard (loudDb: K-weighted, the loudest 100 ms) and MATCH LEVELS (matchGains) */
+    const R = E.SMP.RATE, sine = (f, n, a) => Int16Array.from({ length: n }, (_, i) => Math.round(a * Math.sin(2 * Math.PI * f * i / R)));
+    const d6 = E.loudDb(sine(1000, R, 16000)) - E.loudDb(sine(1000, R, 8000));
+    ok(Math.abs(d6 - 6.02) < 0.05, `levels: half the amplitude is 6 dB quieter (${d6.toFixed(2)} dB)`);
+    const lowHigh = E.loudDb(sine(3000, R, 16000)) - E.loudDb(sine(40, R, 16000));
+    ok(lowHigh > 3, `levels: as the ear hears it, a 40 Hz tone counts less than 3 kHz at the same peak (${lowHigh.toFixed(1)} dB)`);
+    const click = E.loudDb(sine(1000, Math.round(R * 0.01), 16000)) - E.loudDb(sine(1000, R, 16000));
+    ok(click < -8 && click > -12, `levels: a 10 ms click counts over 100 ms, as heard (${click.toFixed(1)} dB)`);
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff) * 2 - 1;
+    const kick = Int16Array.from({ length: Math.round(R * 0.4) }, (_, i) => Math.round(30000 * Math.exp(-i / (R * 0.08)) * Math.sin(2 * Math.PI * 55 * i / R)));
+    const hat = Int16Array.from({ length: Math.round(R * 0.06) }, (_, i) => Math.round(30000 * Math.exp(-i / (R * 0.012)) * rnd()));
+    const snare = Int16Array.from({ length: Math.round(R * 0.25) }, (_, i) => Math.round(30000 * Math.exp(-i / (R * 0.05)) * (0.5 * rnd() + 0.5 * Math.sin(2 * Math.PI * 190 * i / R))));
+    const g = E.matchGains([kick, null, snare, hat]);
+    const after = [kick, snare, hat].map((x, j) => E.loudDb(E.withGain(x, [g[0], g[2], g[3]][j])));
+    const spread = Math.max(...after) - Math.min(...after);
+    ok(g[1] === null && [g[0], g[2], g[3]].every((v) => v <= 0 && v >= E.LEVEL_MIN) && Math.max(g[0], g[2], g[3]) === 0 && spread < 1.2,
+      `levels: MATCH LEVELS: kick ${g[0]}, snare ${g[2]}, hat ${g[3]} dB: heard within ${spread.toFixed(2)} dB, the quietest untouched`);
+    const far = E.matchGains([sine(1000, R, 30000), sine(1000, R, 100)]);
+    ok(far[0] === E.LEVEL_MIN && far[1] === 0, "levels: never more than 24 dB down (a near-silent sound does not mute the rest)");
+    const half = E.withGain(Int16Array.of(20000, -20000), -6);
+    ok(Math.abs(half[0] - 10024) < 3 && Math.abs(half[1] + 10024) < 3 && E.withGain(half, 0) === half, "levels: a file's Gain (-6 dB: half), 0 dB as it came");
+    const kp = { s: kick, fname: "k.wav", tune: 0, gain: g[0], len: 0 };
+    ok(Math.abs(E.loudDb(E.kitPad(kp)) - after[0]) < 0.1, "levels: the drum kit pad sends what was matched (kitPad, its Gain)");
   }
   const files = [{ name: "KIT/01 KICK.wav", data: new Uint8Array([1, 2, 3]) }, { name: "KIT/03 SNARE.wav", data: new Uint8Array(1000).fill(7) }];
   const back = await E.zipRead(E.zipStore(files));

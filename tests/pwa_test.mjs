@@ -44,7 +44,16 @@ try {
   await serve();
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
+  const perr = [];
+  page.on("pageerror", (e) => perr.push(e.message));
+  await page.goto(base + "editor/");
+  await page.waitForTimeout(500);
+  ok(!perr.length, "the editor loads without a script error" + (perr.length ? ": " + perr.join("; ") : ""));
+  ok(await page.evaluate(() => { const b = document.getElementById("install"); return !!b && b.hidden; }),
+     "the editor: its Install the app button, hidden until Chrome offers to install");
   await page.goto(base + "installer/");
+  await page.waitForTimeout(300);
+  ok(!perr.length, "the installer loads without a script error" + (perr.length ? ": " + perr.join("; ") : ""));
   const ready = await page.evaluate(async () => {
     const reg = await navigator.serviceWorker.ready;
     return !!reg.active;
