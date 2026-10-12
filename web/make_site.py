@@ -76,6 +76,9 @@ def app_files(out, version, fw_name):
     for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
         if (app / "editor" / f).exists():
             keep["editor/" + f] = app / "editor" / f
+    for f in ("preview.js", "preview-worklet.js", "sloop-preview.wasm"):
+        if (app / "editor" / f).exists():
+            keep["editor/" + f] = app / "editor" / f
     for f in ICONS:
         keep[f] = app / f
     h = hashlib.sha256()
@@ -148,6 +151,14 @@ def main(pkg, version, out):
     for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
         if (HERE / f).exists():
             shutil.copy(HERE / f, ed / f)
+    # Optional browser DSP, built separately without the hardware toolchain.
+    for f in ("preview.js", "preview-worklet.js"):
+        shutil.copy(HERE / f, ed / f)
+    dsp = HERE.parent / "build" / "preview" / "sloop-preview.wasm"
+    if dsp.exists():
+        shutil.copy(dsp, ed / dsp.name)
+    elif (ed / dsp.name).exists():
+        (ed / dsp.name).unlink()  # never serve an old audio build as the current one
     app_files(out, version, name)
     (out / "index.html").write_text(
         '<!doctype html><meta charset="utf-8"><title>SLOOP</title>'
