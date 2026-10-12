@@ -377,6 +377,36 @@ On USB the FM-1 is also an **audio input named "Felucca"**: 44.1 or 48 kHz (2.5:
 
 Open it from the [installer page](https://isod89.github.io/sloop-fm1/) (or the [editor link](https://isod89.github.io/sloop-fm1/webapp/editor/)) in Chrome or Edge, with the FM-1 on USB, and press **Connect**. It follows the device live: turn a knob on the FM-1 and the editor moves.
 
+**Local audio preview.** Build the browser audio engine with `python3 tools/build_preview.py`
+(Emscripten required; see [BUILDING.md](BUILDING.md#browser-audio-preview)), generate and serve the local site,
+then open `http://localhost:8766/webapp/editor/?mock=1`. Press **Connect** and **Play loop**
+to hear the current four-track loop. Presets, sound parameters, tempo, mixer, steps, locks, FM6 patches and
+uploaded samples feed the actual firmware DSP compiled to WebAssembly, running in an AudioWorklet at 44.1 kHz.
+The preview starts collapsed so the sound editor stays visible. Its compact bar keeps **Play loop** and
+**Stop**, plus the selected sound and its live step/note. **Show preview** opens the piano/pads, volume
+and sequence; **Hide preview** folds them again while the loop keeps playing. Sound parameters remain
+editable during playback in either view.
+Click the notes or play **A W S E D F T G Y H U J K**; **Space** toggles the sequencer, **Stop** releases all notes,
+and **Volume** adjusts browser output. **Current sequence** shows all four patterns with the actual audio
+engine's playing step highlighted, independently following each track's length and division. Patterns over
+16 steps follow automatically. Click a synth step to enable or disable it: re-enabling keeps its previous
+notes, velocity, levels and ratchets. Double-click a synth step to open a piano picker: click a key,
+use **− / +** to browse octaves, then **Apply** to change the pitch (or **Cancel** to keep it).
+**Listen on click** auditions the draft through that track's instrument without saving it to the sequence.
+For chords, select a member above the piano and change its pitch. An empty
+step uses the new note chosen beside its track or by playing its piano. Drum rows show individual percussion sounds: click a cell to toggle
+that hit while keeping the other sounds on the same step. Drums start as a compact overview of hits per
+step; **Show drum grid** (or clicking an overview step) expands the editable sound rows, and **Hide drum
+grid** collapses them without changing the pattern or interrupting playback. Common and programmed sounds stay visible;
+**Show all 16 sounds** reveals the rest. Edits reach the playing loop through the editor protocol.
+**Follow playback** and the page arrows control which 16 steps are shown; paging pauses under the pointer
+or keyboard focus so a click keeps its target. **Full editor** opens the detailed sequencer (including
+chords and ties). **Hide keys/pads** saves space.
+The simulated device stays still until you edit it; its changes are kept
+only for the current page session. This mode makes no MIDI requests and does not connect to or update an FM-1.
+It previews the current project loop; the saved Song section order and hardware recording are not emulated.
+Audio preview requires the served site, rather than the downloaded single-file editor.
+
 **Offline (2.6).** *Download the editor* (under Connect, or on the installer page) saves the whole editor as one file for a computer, `sloop-editor-2.6.html`, also attached to each [release](https://github.com/isod89/sloop-fm1/releases). Double-click it: it opens in Chrome or Edge without internet (Chrome asks once to allow MIDI) and works as the online one. Its sound library (kept in the browser) is its own, apart from the online editor's: move sounds between them with Export / Import, or a backup.
 
 **As an app, also on Android (2.6).** Open the [online editor](https://isod89.github.io/sloop-fm1/webapp/editor/) or the installer once with internet, then *Install the app* (under Connect, or on the installer page; or Chrome's menu → *Install app* / *Add to Home screen*). From then on the SLOOP app opens the editor without internet, and its link to the installer works offline too (with the firmware it installs). It stays the online site kept by the browser, so it uses the same sound library as the online editor, and it takes each new SLOOP version by itself the next time it opens online. On Android, use the app rather than the downloaded file: Chrome on Android does not allow MIDI in a downloaded file.
