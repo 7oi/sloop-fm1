@@ -54,8 +54,7 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
 
 static void fm1_cpu1_hold(void)
 {
-    FM1_C1_CON |= 0x2u;
-    FM1_C1_CON &= ~0x8u;
+    fm1_cpu1_halt();                            /* (2.7.1, fm1_sys.h) the bus-invalid traps off around the hold */
     FM1_C1_SYNC();
     fm1_c1_on = 0;
 }

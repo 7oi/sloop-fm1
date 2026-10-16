@@ -90,7 +90,7 @@
   <p id="status"></p>
   <pre id="log"></pre>
   <a class="ed" href="../editor/" data-t="editor"></a>
-  <p class="small"><a href="../editor/sloop-editor.html" download="sloop-editor-2.7.html" data-t="edOffline"></a></p>
+  <p class="small"><a href="../editor/sloop-editor.html" download="sloop-editor-2.7.1.html" data-t="edOffline"></a></p>
   <p><button id="app" class="ed" hidden data-t="appInstall"></button></p>
   <hr>
   <p class="small" data-t="direct"></p>
@@ -514,7 +514,7 @@ const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textCont
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (t) => { $("log").textContent += t + "\n"; };
 let image = null;
-const meta = {"version": "2.7", "product": "FM-1_900", "pkg": "../../firmware/sloop-2.7.fwsc", "sha256": "194a254cc4df80e27b52efee58821c304391c1c0c4df8d61fa23c2c246f8c9b3"};
+const meta = {"version": "2.7.1", "product": "FM-1_900", "pkg": "../../firmware/sloop-2.7.1.fwsc", "sha256": "7c9d269d15d1c1a48e0ebada7ffa2c2aa196c19d51056fd3f760d322322b335f"};
 
 let writing = false, stock = null;
 const lockAll = (on) => {

@@ -131,11 +131,44 @@ static void fm1_reset_reason(void)
     fm1_boot.wdt_con = fm1_p33_read(FM1_P3_WDT_CON);
 }
 
+/* SLOOP 2.7.1, after Felucca 1.6.1 (Leo Kuroshita, GPL-3.0, fm1_sys.h fm1_cpu1_halt): hold the second core with the
+ * bus-invalid traps off. Holding core 1 cuts the access it has on the bus, and the chip flags that a few instructions
+ * later as a bus-invalid access (DBG_MSG bits 4, 5, 16..21): with the traps on (fm1_guard.h FM1_GUARD_BUS) core 0 took
+ * the exception. On a FM-1 whose core 1 once ran late (fm1_cpu1_wait: 8 ms, then one core), that was a FELUCCA CRASH
+ * screen in mix_block (vec 1, DBG_MSG bit 21) and a reboot instead of a glitch. So: traps off, hold, let the flag
+ * come, clear it, traps back as they were. Registers only: safe when core 1 never ran */
+#define FM1__C1_CON (*(volatile uint32_t *)0x1EEE004u)
+#define FM1__DBG_WR_EN (*(volatile uint32_t *)0x1EEE240u)
+#define FM1__DBG_MSG_CLR (*(volatile uint32_t *)0x1EEE248u)
+#define FM1__DBG_EN (*(volatile uint32_t *)0x1EEE340u)
+#define FM1__DBG_BUS 0x003F0030u                 /* bus-invalid traps: AXI rd/wr (4, 5), C0/C1 fetch/rd/wr (16..21) */
+FM1_INLINE void fm1_cpu1_halt(void)
+{
+    uint32_t locked = !(FM1__DBG_WR_EN & 1u), en, bus = FM1__DBG_BUS;
+    volatile uint32_t n;
+    __asm__("" : "+r"(bus));                     /* (as Felucca: ~bus not folded into a constant) */
+    if (locked)
+        FM1__DBG_WR_EN = 0xE7u;                  /* unlock (as fm1_guard.h) */
+    en = FM1__DBG_EN;
+    FM1__DBG_EN = en & ~bus;
+    __asm__ volatile("csync" ::: "memory");
+    FM1__C1_CON |= 0x2u;                         /* hold: bit 1 set, then bit 3 (enable) cleared */
+    FM1__C1_CON &= ~0x8u;
+    __asm__ volatile("csync" ::: "memory");
+    for (n = 0; n < 256u; n++)                   /* the flag comes some instructions after the hold */
+        ;
+    FM1__DBG_MSG_CLR = bus;
+    __asm__ volatile("csync" ::: "memory");
+    FM1__DBG_EN = en;
+    if (locked && (FM1__DBG_WR_EN & 1u))
+        FM1__DBG_WR_EN = 0xE7u;                  /* lock again */
+    __asm__ volatile("csync" ::: "memory");
+}
+
 static void fm1_reboot(void)
 {
     __asm__ volatile("cli");
-    *(volatile uint32_t *)0x1EEE004u |= 0x2u;          /* the second core held (fm1_cpu1.h) */
-    *(volatile uint32_t *)0x1EEE004u &= ~0x8u;
+    fm1_cpu1_halt();                                   /* the second core held (2.7.1: no bus flag to trap on) */
     fm1_p33_or(FM1_P3_PR_PWR, 0x10);
     for (;;)
         ;
@@ -173,6 +206,7 @@ FM1_INLINE void fm1_enter_update(const uint8_t *parm)
     if (!(*(volatile uint32_t *)0x1EEE240u & 1u))       /* drop CPU0 write limits, as fm1_enter_uboot */
         *(volatile uint32_t *)0x1EEE240u = 0xE7u;
     *(volatile uint32_t *)0x1EEE348u = 0;
+    fm1_cpu1_halt();                                    /* (2.7.1) held with the traps off, before the record */
     for (i = 0; i < FM1_UPDATA_PARM_LEN; i++)
         FM1_UPDATA_PARM[i] = parm[i];
     fm1_core_reset();

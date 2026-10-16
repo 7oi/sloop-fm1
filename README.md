@@ -17,7 +17,7 @@ Free and open source (GPL-3.0), based on <a href="https://github.com/hugelton/Fe
 
 SLOOP turns the FM-1 into a four-track groovebox you play live: **three synths and a drum machine** with 16 sounds on the white keys, twelve synthesis engines, 153 sounds, 37 drum kits, your own samples, a song mode you play with your hands, USB audio, MIDI in on the jack and MIDI clock — and now **physical models** (guitars, sitar, bells, hand drums), a **noise** engine, **six-operator FM with DX7 patches**, **parameter locks**, **micro timing**, **fills**, a **quick chain** of sections and the **sequencer to MIDI out**. House, techno, hip-hop, trap, drum & bass, amapiano, synthwave, lo-fi, ambient, chiptune — it does not pick a style for you. No factory patterns, nothing to load: everything you hear, you play.
 
-> **Status:** 2.7 (two processor cores, fifteen arp modes, KBD HOLD, drum TUNE and DECAY, favourite sounds, looping samples, QUANT off, MIDI 3, your own screen colours; after 2.6's 27 punch-in effects, INSERT and MIDI LEARN). Still a beta: install at your own risk, and please [report](../../issues) what you find. Your projects, presets, samples and settings are kept when you update, and you can go back at any time (see [Going back](#going-back)).
+> **Status:** 2.7.1 (a fix for 2.7: an FM-1 whose second core ran late showed a FELUCCA CRASH screen and restarted; it now carries on, on one core). 2.7: two processor cores, fifteen arp modes, KBD HOLD, drum TUNE and DECAY, favourite sounds, looping samples, QUANT off, MIDI 3, your own screen colours; after 2.6's 27 punch-in effects, INSERT and MIDI LEARN. Still a beta: install at your own risk, and please [report](../../issues) what you find. Your projects, presets, samples and settings are kept when you update, and you can go back at any time (see [Going back](#going-back)).
 
 ## Contents
 
@@ -42,6 +42,8 @@ SLOOP turns the FM-1 into a four-track groovebox you play live: **three synths a
 ---
 
 ## What's new in 2.7
+
+**2.7.1** fixes a crash: when the FM-1's second core did not finish its share of the sound in time, SLOOP stops it and carries on on one core, but stopping it raised a false alarm on the chip, and the FM-1 showed a red FELUCCA CRASH screen and restarted. It now holds the second core the safe way (after Felucca 1.6.1): a short glitch, and the music goes on. The crash screen also says more (the stack, the second core's state) and stays 10 seconds, long enough for a photo.
 
 - **Two cores:** the sound now runs on both of the FM-1's cores (andrerezemini, #111): about twice the room, so many voices and INSERT effects no longer crackle. On by default (HOME menu → SYSTEM → 2ND CORE).
 - **Fifteen arp modes** from Felucca 1.5.1 (REPEAT, DNUP, UP+8, CONV, DIVG, PINKY, THUMB, WALK, CHORD), ORD in the order you pressed, and the arp keeps going when you change the sound.

@@ -143,8 +143,18 @@ UI_SMALL static void fm1_fault(const fm1_crash_t *c)
     draw_text_box(10, 102, 220, &FONT_S, b, C_WHITE, 0);
     hexs(b, c->rets);
     draw_text_box(10, 120, 220, &FONT_S, b, C_WHITE, 0);
+    hexs(b, c->sp);                                     /* (2.7.1) more to read on a photo of it: the stack, */
+    draw_text_box(10, 144, 220, &FONT_S, b, C_WHITE, 0);
+    {                                                   /* the second core (state 3 = running, how many late jobs) */
+        char t[28];
+        str_cpy(t, "C1 ", sizeof t);
+        fmt_int(t + str_len(t), (int32_t)cpu1_state);
+        str_cpy(t + str_len(t), " LATE ", 7);
+        fmt_int(t + str_len(t), (int32_t)(cpu1_timeouts > 99u ? 99u : cpu1_timeouts));
+        draw_text_box(10, 162, 220, &FONT_S, t, C_WHITE, 0);
+    }
     t0 = fm1_ticks();
-    while ((uint32_t)(fm1_ticks() - t0) < 4000u * 1000u * FM1_TICKS_PER_US)
+    while ((uint32_t)(fm1_ticks() - t0) < 10000u * 1000u * FM1_TICKS_PER_US)   /* (2.7.1: 10 s, time for a photo) */
         ;
     fm1_reboot();
 }
