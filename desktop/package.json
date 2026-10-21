@@ -1,0 +1,9 @@
+{
+  "name": "sloop-editor",
+  "productName": "SLOOP Editor",
+  "version": "2.8.0",
+  "description": "Desktop shell for the SLOOP FM-1 web editor",
+  "license": "GPL-3.0-only",
+  "main": "main.js",
+  "private": true
+}
