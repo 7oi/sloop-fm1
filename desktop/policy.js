@@ -41,9 +41,36 @@ function isAppUrl(u) {
   return parsed.protocol === APP_SCHEME + ':' && parsed.host === APP_HOST;
 }
 
+// Permissions the editor genuinely uses. midi/midiSysex are the device link;
+// fullscreen backs the LIVE page's requestFullscreen(), and
+// clipboard-sanitized-write backs its copy buttons. Chromium consults the
+// check handler for all of these, so omitting the last two does not merely
+// skip a prompt — it makes those editor features fail silently.
+const ALLOWED_PERMISSIONS = new Set([
+  'midi',
+  'midiSysex',
+  'fullscreen',
+  'clipboard-sanitized-write'
+]);
+
 function allowPermission(permission, requestingUrl) {
-  if (permission !== 'midi' && permission !== 'midiSysex') return false;
+  if (!ALLOWED_PERMISSIONS.has(permission)) return false;
   return isAppUrl(requestingUrl);
+}
+
+// Only the editor document itself may occupy the window. The editor links to
+// ../installer/, which is in-scheme but has no target in this app: allowing it
+// replaces the window with a bare "not found" page that the app, having no
+// Back control, cannot escape.
+function isAllowedNavigation(url, index) {
+  if (!isAppUrl(url)) return false;
+  let pathname;
+  try {
+    pathname = new URL(url).pathname;
+  } catch (e) {
+    return false;
+  }
+  return pathname === '/' || pathname === '/' + index;
 }
 
 // Decide what to serve, without touching Electron. `exists` is injected so
@@ -54,11 +81,14 @@ function allowPermission(permission, requestingUrl) {
 // references ../sloop.webmanifest and ../icon-192.png, neither of which ships
 // in the app: without this check those misses surface as unhandled rejections
 // with a stack trace on every launch.
-function classifyRequest({ root, host, pathname, index, exists }) {
+//
+// `isFile`, not `exists`: net.fetch rejects on a directory file:// URL too, so
+// an existence test alone leaves the same unhandled rejection open.
+function classifyRequest({ root, host, pathname, index, isFile }) {
   if (host !== APP_HOST) return { status: 404, file: null };
   const file = resolveWithinRoot(root, pathname === '/' ? '/' + index : pathname);
   if (file === null) return { status: 400, file: null };
-  if (!exists(file)) return { status: 404, file: null };
+  if (!isFile(file)) return { status: 404, file: null };
   return { status: 200, file };
 }
 
@@ -68,5 +98,6 @@ module.exports = {
   resolveWithinRoot,
   isAppUrl,
   allowPermission,
-  classifyRequest
+  classifyRequest,
+  isAllowedNavigation
 };
