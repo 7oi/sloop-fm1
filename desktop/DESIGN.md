@@ -3,7 +3,7 @@
 # SLOOP Editor desktop app — design
 
 **Date:** 2026-10-21
-**Status:** approved design, not yet implemented
+**Status:** implemented on the `desktop-app` branch; see `PLAN.md` and `README.md`
 **Scope:** a NixOS desktop application wrapping the existing SLOOP web editor
 
 ## Intent
@@ -120,9 +120,11 @@ and no `buildNpmPackage` — the Nix derivation copies files and wraps the
 
 ## Components
 
-Four files.
+Four files as designed; implementation split the policy logic out of
+`main.js` into `desktop/policy.js` so path safety and permission decisions
+could be unit-tested without Electron, and added `desktop/README.md`.
 
-**`desktop/main.js`** — the whole application. Registers the scheme, creates a
+**`desktop/main.js`** — the Electron wiring. Registers the scheme, creates a
 1280×860 `BrowserWindow` with `contextIsolation: true`, `nodeIntegration: false`
 and `sandbox: true`, installs the permission and navigation handlers, and builds
 a minimal menu: reload, toggle devtools, zoom in/out/reset, quit.
