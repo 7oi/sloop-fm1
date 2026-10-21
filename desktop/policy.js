@@ -46,4 +46,27 @@ function allowPermission(permission, requestingUrl) {
   return isAppUrl(requestingUrl);
 }
 
-module.exports = { APP_SCHEME, APP_HOST, resolveWithinRoot, isAppUrl, allowPermission };
+// Decide what to serve, without touching Electron. `exists` is injected so
+// this stays pure and testable.
+//
+// net.fetch() REJECTS on a missing file rather than yielding a 404, so the
+// caller must know the file is there before fetching it. The editor
+// references ../sloop.webmanifest and ../icon-192.png, neither of which ships
+// in the app: without this check those misses surface as unhandled rejections
+// with a stack trace on every launch.
+function classifyRequest({ root, host, pathname, index, exists }) {
+  if (host !== APP_HOST) return { status: 404, file: null };
+  const file = resolveWithinRoot(root, pathname === '/' ? '/' + index : pathname);
+  if (file === null) return { status: 400, file: null };
+  if (!exists(file)) return { status: 404, file: null };
+  return { status: 200, file };
+}
+
+module.exports = {
+  APP_SCHEME,
+  APP_HOST,
+  resolveWithinRoot,
+  isAppUrl,
+  allowPermission,
+  classifyRequest
+};

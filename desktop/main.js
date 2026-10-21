@@ -10,7 +10,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-const { APP_SCHEME, APP_HOST, resolveWithinRoot, allowPermission, isAppUrl } = require('./policy.js');
+const { APP_SCHEME, APP_HOST, allowPermission, isAppUrl, classifyRequest } = require('./policy.js');
 
 const override = process.env.SLOOP_EDITOR_HTML;
 const HTML_ROOT = override ? path.dirname(path.resolve(override)) : __dirname;
@@ -29,14 +29,17 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 function serve(req) {
-  const { host, pathname } = new URL(req.url);
-  if (host !== APP_HOST) {
-    return new Response('not found', { status: 404 });
-  }
   // new URL() already strips ?query and #fragment from pathname.
-  const file = resolveWithinRoot(HTML_ROOT, pathname === '/' ? '/' + INDEX : pathname);
-  if (file === null) {
-    return new Response('bad request', { status: 400 });
+  const { host, pathname } = new URL(req.url);
+  const { status, file } = classifyRequest({
+    root: HTML_ROOT,
+    host,
+    pathname,
+    index: INDEX,
+    exists: fs.existsSync
+  });
+  if (status !== 200) {
+    return new Response(status === 400 ? 'bad request' : 'not found', { status });
   }
   return net.fetch(pathToFileURL(file).toString());
 }

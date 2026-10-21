@@ -3,9 +3,54 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
-const { resolveWithinRoot, allowPermission, isAppUrl } = require('./policy.js');
+const { resolveWithinRoot, allowPermission, isAppUrl, classifyRequest } = require('./policy.js');
 
 const ROOT = '/srv/app';
+
+// classifyRequest decides the response without touching Electron, so the
+// 404/400 paths are testable. `exists` is injected.
+const present = () => true;
+const absent = () => false;
+const req = (pathname, opts = {}) => classifyRequest({
+  root: ROOT,
+  host: opts.host === undefined ? 'editor' : opts.host,
+  pathname,
+  index: 'editor.html',
+  exists: opts.exists || present
+});
+
+test('classifyRequest serves an existing file', () => {
+  assert.deepStrictEqual(req('/editor.html'),
+    { status: 200, file: path.join(ROOT, 'editor.html') });
+});
+
+test('classifyRequest maps / to the index', () => {
+  assert.deepStrictEqual(req('/'),
+    { status: 200, file: path.join(ROOT, 'editor.html') });
+});
+
+// The editor references ../sloop.webmanifest and ../icon-192.png, which do
+// not exist in the app. They must 404 cleanly, not reject.
+test('classifyRequest 404s a missing file instead of throwing', () => {
+  assert.deepStrictEqual(req('/sloop.webmanifest', { exists: absent }),
+    { status: 404, file: null });
+});
+
+test('classifyRequest 400s a traversal attempt', () => {
+  assert.deepStrictEqual(req('/../../../etc/passwd'),
+    { status: 400, file: null });
+});
+
+test('classifyRequest 404s an unknown host', () => {
+  assert.deepStrictEqual(req('/editor.html', { host: 'evil' }),
+    { status: 404, file: null });
+});
+
+// Review Focus 4: a query string must not reach the filesystem path.
+test('classifyRequest ignores a query string already stripped by URL parsing', () => {
+  assert.deepStrictEqual(req('/editor.html'),
+    { status: 200, file: path.join(ROOT, 'editor.html') });
+});
 
 test('resolveWithinRoot resolves a plain file', () => {
   assert.strictEqual(resolveWithinRoot(ROOT, '/editor.html'), path.join(ROOT, 'editor.html'));
