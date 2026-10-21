@@ -14,11 +14,76 @@ not a released artefact. See `DESIGN.md` for why it is built this way and
 
 ## Install it
 
+Either way it then appears in the application grid as **SLOOP Editor**.
+
+### From a local checkout
+
 Add to `environment.systemPackages` or a home-manager profile:
 
     (builtins.getFlake "/home/joi/dev/7oi/sloop-fm1").packages.x86_64-linux.default
 
-It then appears in the application grid as **SLOOP Editor**.
+### From GitHub
+
+The flake lives at the repo root, so the repo reference is the flake
+reference. Nothing needs to be checked out.
+
+These commands only work once the commits carrying `flake.nix` are pushed to
+`origin`; until then every `github:` reference below 404s. They also read the
+default branch, so push to `main` (or pin a branch explicitly, below).
+
+Try it without installing:
+
+    nix run github:7oi/sloop-fm1
+    nix run github:7oi/sloop-fm1#test     # the Web MIDI probe
+
+Install it into your user profile:
+
+    nix profile install github:7oi/sloop-fm1
+    nix profile list                      # find the element name
+    nix profile upgrade sloop-editor      # later, to update
+
+Or wire it into a system or home-manager flake:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    sloop-fm1.url = "github:7oi/sloop-fm1";
+  };
+
+  outputs = { nixpkgs, sloop-fm1, ... }: {
+    # NixOS
+    nixosConfigurations.<host> = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [{
+        environment.systemPackages = [
+          sloop-fm1.packages.x86_64-linux.default
+        ];
+      }];
+    };
+    # or home-manager:
+    #   home.packages = [ sloop-fm1.packages.x86_64-linux.default ];
+  };
+}
+```
+
+Update it later with `nix flake update sloop-fm1`.
+
+Pin a branch, tag or commit when you want to stay put:
+
+    github:7oi/sloop-fm1/main           # a branch or tag
+    github:7oi/sloop-fm1?rev=<sha>      # an exact commit
+
+**On `inputs.nixpkgs.follows`.** You may be tempted to add
+`sloop-fm1.inputs.nixpkgs.follows = "nixpkgs"` to avoid evaluating a second
+nixpkgs. It works, but only if the nixpkgs you point it at still provides
+`electron` and `xvfb-run` under those names — this flake is built and tested
+against `nixos-unstable`, and following an older stable release is the likely
+way to break it. Without `follows` the pinned `flake.lock` is used and the
+build is the one that was tested; the cost is evaluating a second nixpkgs.
+
+**x86_64-linux only.** There are no other `packages.<system>` outputs, so a
+reference from an aarch64 or Darwin configuration fails to evaluate.
 
 ## Develop
 
