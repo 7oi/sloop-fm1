@@ -17,11 +17,11 @@ Free and open source (GPL-3.0), based on <a href="https://github.com/hugelton/Fe
 
 SLOOP turns the FM-1 into a four-track groovebox you play live: **three synths and a drum machine** with 16 sounds on the white keys, twelve synthesis engines, 153 sounds, 37 drum kits, your own samples, a song mode you play with your hands, USB audio, MIDI in on the jack and MIDI clock — and now **physical models** (guitars, sitar, bells, hand drums), a **noise** engine, **six-operator FM with DX7 patches**, **parameter locks**, **micro timing**, **fills**, a **quick chain** of sections and the **sequencer to MIDI out**. House, techno, hip-hop, trap, drum & bass, amapiano, synthwave, lo-fi, ambient, chiptune — it does not pick a style for you. No factory patterns, nothing to load: everything you hear, you play.
 
-> **Status:** 2.7.1 (a fix for 2.7: an FM-1 whose second core ran late showed a FELUCCA CRASH screen and restarted; it now carries on, on one core). 2.7: two processor cores, fifteen arp modes, KBD HOLD, drum TUNE and DECAY, favourite sounds, looping samples, QUANT off, MIDI 3, your own screen colours; after 2.6's 27 punch-in effects, INSERT and MIDI LEARN. Still a beta: install at your own risk, and please [report](../../issues) what you find. Your projects, presets, samples and settings are kept when you update, and you can go back at any time (see [Going back](#going-back)).
+> **Status:** 2.8 (a NOTES piano-roll editor for the synth tracks and the same per-step sheet on the drums, the playing section A–D shown on the main screen, resonance on every filter, the FX filter on the drums, drum TUNE on the noise sounds, a settable punch-in fade, steadier MIDI clock in, MIDI Bank Select; fixes: a reliable USB RESCUE, the browser installer finds the FM-1's loader by its handshake, the in-browser return-to-stock removed — use M-UPGRADE). 2.7: two processor cores, fifteen arp modes, KBD HOLD, drum TUNE and DECAY, favourite sounds, looping samples, QUANT off, MIDI 3, your own screen colours; after 2.6's 27 punch-in effects, INSERT and MIDI LEARN. Still a beta: install at your own risk, and please [report](../../issues) what you find. Your projects, presets, samples and settings are kept when you update, and you can go back at any time (see [Going back](#going-back)).
 
 ## Contents
 
-1. [What's new in 2.7, 2.6 and 2.5](#whats-new-in-27)
+1. [What's new in 2.8, 2.7 and 2.6](#whats-new-in-28)
 2. [Screenshots](#screenshots)
 3. [Features](#features)
 4. [Install](#install)
@@ -38,6 +38,23 @@ SLOOP turns the FM-1 into a four-track groovebox you play live: **three synths a
 15. [Contributing](#contributing)
 16. [Credits and thanks](#credits-and-thanks)
 17. [Licence](#licence)
+
+---
+
+## What's new in 2.8
+
+3,000 of you now follow SLOOP — thank you. 2.8 is a deeper way to write and shape your music, and most of it comes from your comments and reports.
+
+- **NOTES editor:** a piano-roll note editor for the synth tracks (SEQ → NOTES). KNOB 1 picks the notes (a chord's notes one by one), KNOB 2 the pitch, KNOB 3 the length, KNOB 4 the force; PRESETS zooms, EDIT deletes. Hold OCT+ on a step for its sheet: SLIDE, NUDGE, FILL, MOVE, COPY, DELETE.
+- **The same per-step sheet on the DRUMS grid:** hold OCT+ on a drum step for RATCHET, NUDGE, FILL, MOVE, COPY, DELETE — the groove, shaped step by step.
+- **The playing section on screen:** the TRACKS screen now shows which section (A to D) is playing, in its own colour.
+- **Filter resonance:** the per-track filter gains a resonance control, 0 (clean, as before) to 10 (AUDIO → FILTER RESO).
+- **The FX filter on the drum track:** the FX → FILTER page now works on drums too; sweep and shape the whole kit, live.
+- **Drum TUNE on the noise sounds:** TUNE now shapes the brightness of tone-less sounds (closed hats, shakers, claps) on the synthesised kits.
+- **A smoother punch-in:** a settable fade-in and out for the punch-in effects, from instant to about a third of a second (hold FX, then SELECT).
+- **MIDI Bank Select (CC 0):** reach every preset past the 128 Program Change range — the rest of the factory sounds, then your own user presets by slot.
+
+**Fixed:** USB RESCUE (hold OCT- at power-on) now opens reliably; the browser installer finds the FM-1's update loader by its handshake, so a loader that Windows renames to a generic MIDI port is still found; steadier MIDI clock in; the SONG sections take the current theme's colours; FX FADE moved onto the FX layer's SELECT; the in-browser "return to the official firmware" option was removed (use M-VAVE's own updater M-UPGRADE instead).
 
 ---
 
