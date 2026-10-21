@@ -25,6 +25,17 @@
       };
 
       sloop-editor = pkgs.callPackage ./desktop/sloop-editor.nix { inherit src; };
+
+      midi-selftest = pkgs.writeShellApplication {
+        name = "sloop-editor-midi-selftest";
+        runtimeInputs = [ pkgs.xvfb-run sloop-editor ];
+        text = ''
+          # Runs the real app under a virtual X server and probes Web MIDI.
+          # Needs the host's ALSA sequencer, so this cannot be a derivation check.
+          export SLOOP_SELFTEST=1
+          exec xvfb-run -a sloop-editor
+        '';
+      };
     in
     {
       packages.${system} = {
@@ -32,9 +43,15 @@
         inherit sloop-editor;
       };
 
-      apps.${system}.default = {
-        type = "app";
-        program = lib.getExe sloop-editor;
+      apps.${system} = {
+        default = {
+          type = "app";
+          program = lib.getExe sloop-editor;
+        };
+        test = {
+          type = "app";
+          program = lib.getExe midi-selftest;
+        };
       };
 
       checks.${system}.default = sloop-editor;
